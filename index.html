@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <!--<link rel="stylesheet" href="css/style.css" />-->
+    <link rel="stylesheet" href="css/libs/w3.css" />
+    <link rel="stylesheet" href="css/processgraphics.css" />
+  </head>
+
+  <body>
+    <div id="mySidebar" class="sidebar">
+      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()"
+        >&times;</a
+      >
+      TO BE COMPLETE
+    </div>
+
+    <div id="main">
+      <div id="topMenu">
+        <table>
+          <tr>
+            <td>
+              <button class="w3-button" onclick="openNav();">MENU</button>
+
+              <input
+                class="w3-check"
+                type="checkbox"
+                id="grid"
+                onclick="toggleGrid();"
+                checked="checked"
+              />
+
+              <button class="w3-button w3-button-sm" onclick="grid(5);">
+                5PT
+              </button>
+              <button class="w3-button" onclick="grid(10);">10PT</button>
+              <button class="w3-button" onclick="grid(20);">20PT</button>
+              <button class="w3-button" onclick="grid(30);">30PT</button>
+              <button class="w3-button" onclick="grid(40);">40PT</button>
+              <button class="w3-button" onclick="grid(60);">60PT</button>
+            </td>
+            <td>
+              <table>
+                <tr>
+                  <td>
+                    L
+                  </td>
+                  <td>
+                    <div class="input-color-container">
+                      <input
+                        id="input-color"
+                        value="#ed6868"
+                        onchange="updateColor();"
+                        class="input-color"
+                        type="color"
+                      />
+                    </div>
+                  </td>
+                  <td>
+                    F
+                  </td>
+                  <td>
+                    <div class="input-color-container">
+                      <input
+                        id="input-color"
+                        value="#ed6868"
+                        onchange="updateColor();"
+                        class="input-color"
+                        type="color"
+                      />
+                    </div>
+                  </td>
+
+                  <td>
+                    BG
+                  </td>
+                  <td>
+                    <div class="input-color-container">
+                      <input
+                        id="input-color"
+                        value="#ed6868"
+                        onchange="updateColor();"
+                        class="input-color"
+                        type="color"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td>
+              <input
+                type="text"
+                id="line"
+                onkeyup="updateLine();"
+                value="2"
+                size="3"
+              />
+
+              <button class="w3-button w3-primary" onclick="undo();">
+                UNDO
+              </button>
+
+              <input
+                class="w3-radio"
+                type="radio"
+                id="drawLine"
+                name="action"
+                value="drawLine"
+              />LINE
+              <input
+                class="w3-radio"
+                type="radio"
+                id="drawValve"
+                name="action"
+                value="drawValve"
+              />VALVE
+              <input
+                class="w3-radio"
+                type="radio"
+                id="drawRectangle"
+                name="action"
+                value="drawRectangle"
+              />RECTANGLE
+              <input
+                class="w3-radio"
+                type="radio"
+                id="drawVessel"
+                name="action"
+                value="drawVessel"
+              />VESSEL
+              <input
+                class="w3-radio"
+                type="radio"
+                id="drawPump"
+                name="action"
+                value="drawPump"
+              />PUMP
+              <input
+                class="w3-radio"
+                type="radio"
+                id="rotate"
+                name="action"
+                value="rotate"
+              />ROTATE
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div id="app"></div>
+    </div>
+
+    <script src="js/libs/pixi-legacy.min.js"></script>
+    <script src="js/libs/gsap.min.js"></script>
+    <script src="js/libs/howler.min.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/processgraphics.js"></script>
+  </body>
+</html>
