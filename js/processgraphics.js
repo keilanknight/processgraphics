@@ -53,6 +53,7 @@ function drawLine(client) {
     let temp = { x: start.x, y: start.y };
     if (start.x > x) (start.x = x), (x = temp.x);
     if (start.y > y) (start.y = y), (y = temp.y);
+
     // Edge out the line so they always join up
     x += assets.drawing.lineWidth;
 
@@ -122,16 +123,16 @@ function drawRectangle(client) {
       y: assets.drawing.currentDraw.y
     };
 
+    // Sort out the coordinates if we drew it backwards
+    let temp = { x: start.x, y: start.y };
+    if (start.x > x) (start.x = x), (x = temp.x);
+    if (start.y > y) (start.y = y), (y = temp.y);
+
     let gfx = new PIXI.Graphics()
       .lineStyle(1, 0x000000, 1)
       .beginFill(assets.drawing.fillColor)
       .drawRect(start.x, start.y, x - start.x, y - start.y)
       .endFill();
-
-    // Further fix needed for rectangles not rendering correctly when
-    // drawn backwards
-    if (x < start.x) gfx.scale.x = -1;
-    if (y < start.y) gfx.scale.y = -1;
 
     // Convert to Texture
     let l = app.renderer.generateTexture(gfx);
