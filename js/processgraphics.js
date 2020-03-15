@@ -18,6 +18,7 @@ let assets = {
     startDraw: true,
     currentDraw: {},
     lineColor: 0xffffff,
+    fillColor: 0xffffff,
     lineWidth: 2
   },
   symbols: {}
@@ -42,7 +43,7 @@ function drawLine(client) {
     assets.drawing.currentDraw = { x: x, y: y };
     assets.drawing.startDraw = false;
   } else {
-    updateColor(); // Ensure up to date
+    updateLineColor(); // Ensure up to date
     let start = {
       x: assets.drawing.currentDraw.x,
       y: assets.drawing.currentDraw.y
@@ -115,7 +116,7 @@ function drawRectangle(client) {
     assets.drawing.currentDraw = { x: x, y: y };
     assets.drawing.startDraw = false;
   } else {
-    updateColor(); // Ensure up to date
+    updateFillColor(); // Ensure up to date
     let start = {
       x: assets.drawing.currentDraw.x,
       y: assets.drawing.currentDraw.y
@@ -123,7 +124,7 @@ function drawRectangle(client) {
 
     let gfx = new PIXI.Graphics()
       .lineStyle(1, 0x000000, 1)
-      .beginFill(assets.drawing.lineColor)
+      .beginFill(assets.drawing.fillColor)
       .drawRect(start.x, start.y, x - start.x, y - start.y)
       .endFill();
 
@@ -177,7 +178,7 @@ function drawValve(client) {
   // let units = assets.gridLines;
   let units = 10;
 
-  updateColor(); // Ensure up to date
+  updateFillColor(); // Ensure up to date
 
   // prettier-ignore
   let path = [0 * units, 0 * units,
@@ -189,7 +190,7 @@ function drawValve(client) {
 
   let gfx = new PIXI.Graphics()
     .lineStyle(1, 0x000000, 1)
-    .beginFill(assets.drawing.lineColor)
+    .beginFill(assets.drawing.fillColor)
     .drawPolygon(path)
     .endFill();
 
@@ -225,7 +226,7 @@ function drawPump(client) {
   // let units = assets.gridLines;
   let units = 10;
 
-  updateColor(); // Ensure up to date
+  updateFillColor(); // Ensure up to date
 
   // prettier-ignore
   let path = [0 * units, 1 * units,
@@ -234,10 +235,10 @@ function drawPump(client) {
 
   let gfx = new PIXI.Graphics()
     .lineStyle(1, 0x000000, 1)
-    .beginFill(assets.drawing.lineColor)
+    .beginFill(assets.drawing.fillColor)
     .drawPolygon(path)
     .endFill()
-    .beginFill(assets.drawing.lineColor)
+    .beginFill(assets.drawing.fillColor)
     .drawCircle(0, 12, 20, 20)
     .endFill();
 
@@ -313,14 +314,26 @@ function undo() {
     assets.history.pop();
   }
 }
-function updateColor() {
-  let c = document.querySelector("#input-color");
+function updateLineColor() {
+  let c = document.getElementsByName("lineColor")[0];
   let tmp = c.value.split("#");
   assets.drawing.lineColor = Number("0x" + tmp[1]);
 }
+function updateFillColor() {
+  let c = document.getElementsByName("fillColor")[0];
+  let tmp = c.value.split("#");
+  assets.drawing.fillColor = Number("0x" + tmp[1]);
+}
+function updateBGColor() {
+  let c = document.getElementsByName("bgColor")[0];
+  let tmp = c.value.split("#");
+  assets.drawing.bgColor = Number("0x" + tmp[1]);
+  // update straight away
+  app.renderer.backgroundColor = assets.drawing.bgColor;
+}
 function updateLine() {
   let l = document.querySelector("#line");
-  assets.drawing.lineWidth = l.value;
+  assets.drawing.lineWidth = Number(l.value);
 }
 function toggleGrid() {
   if (assets.snapToGrid) {
