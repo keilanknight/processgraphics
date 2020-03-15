@@ -48,18 +48,20 @@ function drawLine(client) {
       y: assets.drawing.currentDraw.y
     };
 
-    let xDelta = Math.abs(start.x - x);
-    let yDelta = Math.abs(start.y - y);
+    // Sort out the coordinates if we drew it backwards
+    let temp = { x: start.x, y: start.y };
+    if (start.x > x) (start.x = x), (x = temp.x);
+    if (start.y > y) (start.y = y), (y = temp.y);
+    // Edge out the line so they always join up
+    x += assets.drawing.lineWidth;
+
+    let xDelta = Math.abs(x - start.x);
+    let yDelta = Math.abs(y - start.y);
 
     // Ensure line stays straight unless a 45 degree angle
     if (xDelta != yDelta) {
-      if (xDelta > yDelta) {
-        y = start.y;
-        x;
-      } else {
-        x = start.x;
-        y;
-      }
+      if (xDelta > yDelta) y = start.y;
+      else x = start.x;
     }
 
     let gfx = (assets.drawing.currentDraw = new PIXI.Graphics())
@@ -71,10 +73,7 @@ function drawLine(client) {
     let l = app.renderer.generateTexture(gfx);
     let line = new PIXI.Sprite(l);
     procGrafx.addChild(line);
-    // Fix minor glitch when drawing shapes backwards
-    let drawX = start.x < x ? start.x : x;
-    let drawY = start.y < y ? start.y : y;
-    line.position.set(drawX, drawY);
+    line.position.set(start.x, start.y);
 
     // Add to array, creates it if it doesn't already exist
     if (assets.symbols.lines) assets.symbols.lines.push(line);
