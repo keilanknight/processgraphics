@@ -138,11 +138,7 @@ function drawRectangle(client) {
     let l = app.renderer.generateTexture(gfx);
     let rectangle = new PIXI.Sprite(l);
     procGrafx.addChild(rectangle);
-
-    // Fix minor glitch when drawing shapes backwards
-    let drawX = start.x < x ? start.x : x;
-    let drawY = start.y < y ? start.y : y;
-    rectangle.position.set(drawX, drawY);
+    rectangle.position.set(start.x, start.y);
 
     // Add to array, creates it if it doesn't already exist
     if (assets.symbols.rectangles) assets.symbols.rectangles.push(rectangle);
@@ -315,22 +311,12 @@ function undo() {
     assets.history.pop();
   }
 }
-function updateLineColor() {
-  let c = document.getElementsByName("lineColor")[0];
-  let tmp = c.value.split("#");
-  assets.drawing.lineColor = Number("0x" + tmp[1]);
-}
-function updateFillColor() {
-  let c = document.getElementsByName("fillColor")[0];
-  let tmp = c.value.split("#");
-  assets.drawing.fillColor = Number("0x" + tmp[1]);
-}
-function updateBGColor() {
-  let c = document.getElementsByName("bgColor")[0];
-  let tmp = c.value.split("#");
-  assets.drawing.bgColor = Number("0x" + tmp[1]);
-  // update straight away
-  app.renderer.backgroundColor = assets.drawing.bgColor;
+function updateColor(option) {
+  let c = document.getElementsByName(option)[0];
+  let parts = c.value.split("#");
+  assets.drawing[option] = Number("0x" + parts[1]);
+  if (option == "bgColor")
+    app.renderer.backgroundColor = assets.drawing.bgColor;
 }
 function updateLine() {
   let l = document.querySelector("#line");
@@ -391,6 +377,9 @@ function drawGrid() {
   }
   gridLines.cacheAsBitmap = true;
 }
+const updateLineColor = () => updateColor("lineColor");
+const updateFillColor = () => updateColor("fillColor");
+const updateBGColor = () => updateColor("bgColor");
 
 // Setup DOM and events
 document.querySelector("#app").appendChild(app.view);
