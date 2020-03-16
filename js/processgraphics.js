@@ -1,6 +1,3 @@
-window.onbeforeunload = function() {
-  return "";
-};
 let app = new PIXI.Application({
   width: 1280, // default: 800
   height: 600, // default: 600
@@ -19,10 +16,13 @@ let assets = {
     currentDraw: {},
     lineColor: 0xffffff,
     fillColor: 0xffffff,
-    lineWidth: 2
+    lineWidth: 2,
+    interactiveMode: false
   },
   symbols: {}
 };
+
+const procLines = new PIXI.Container();
 const procGrafx = new PIXI.Container();
 const procValves = new PIXI.Container();
 let tempLines = new PIXI.Container();
@@ -30,9 +30,55 @@ let gridLines = new PIXI.Container();
 
 app.stage.addChild(gridLines);
 app.stage.addChild(tempLines);
+app.stage.addChild(procLines);
 app.stage.addChild(procGrafx);
 app.stage.addChild(procValves);
 
+// Setup DOM and events
+document.querySelector("#app").appendChild(app.view);
+document.querySelector("#app").addEventListener("mousedown", mouseDown);
+document
+  .getElementsByName("action")
+  .forEach(e => e.addEventListener("mouseup", updateAction));
+
+drawGrid();
+
+function updateAction() {
+  // Adding a delay to this because its being triggered before the value has updated in DOMM
+  // got to be a better way of doing this...
+  setTimeout(() => {
+    let action = document.querySelector('input[name="action"]:checked').value;
+    updateHandler(action);
+  }, 10);
+}
+function updateHandler(option) {
+  switch (option) {
+    case "rotate":
+      assets.drawing.interactiveMode = true;
+      // Iterate through all objects
+      Object.keys(assets.symbols).forEach(e => {
+        let symbols = assets.symbols[e];
+        for (let i = 0; i < symbols.length; i++) {
+          let symbol = symbols[i];
+          symbol.interactive = true;
+        }
+      });
+      break;
+    default:
+      if (assets.drawing.interactiveMode) {
+        // Iterate through all objects
+        Object.keys(assets.symbols).forEach(e => {
+          let symbols = assets.symbols[e];
+          for (let i = 0; i < symbols.length; i++) {
+            let symbol = symbols[i];
+            symbol.interactive = false;
+          }
+        });
+      }
+      assets.drawing.interactiveMode = false;
+      break;
+  }
+}
 function drawLine(client) {
   let x = client.x;
   let y = client.y;
@@ -43,7 +89,6 @@ function drawLine(client) {
     assets.drawing.currentDraw = { x: x, y: y };
     assets.drawing.startDraw = false;
   } else {
-    updateLineColor(); // Ensure up to date
     let start = {
       x: assets.drawing.currentDraw.x,
       y: assets.drawing.currentDraw.y
@@ -74,7 +119,9 @@ function drawLine(client) {
     // Convert to Texture
     let l = app.renderer.generateTexture(gfx);
     let line = new PIXI.Sprite(l);
-    procGrafx.addChild(line);
+
+    // Add to Lines container and set correct position
+    procLines.addChild(line);
     line.position.set(start.x, start.y);
 
     // Add to array, creates it if it doesn't already exist
@@ -87,12 +134,12 @@ function drawLine(client) {
     assets.drawing.currentDraw = {};
 
     // Silly animation
-    gsap.from(line, { alpha: 0, duration: 0.2 });
+    gsap.from(line, { alpha: 0, duration: 0.1 });
 
     // Clean up temp lines
     gsap.to(tempLines, {
       alpha: 0,
-      duration: 0.2,
+      duration: 0.1,
       ease: "none",
       onComplete: () =>
         tempLines.destroy({
@@ -117,7 +164,6 @@ function drawRectangle(client) {
     assets.drawing.currentDraw = { x: x, y: y };
     assets.drawing.startDraw = false;
   } else {
-    updateFillColor(); // Ensure up to date
     let start = {
       x: assets.drawing.currentDraw.x,
       y: assets.drawing.currentDraw.y
@@ -150,12 +196,98 @@ function drawRectangle(client) {
     assets.drawing.currentDraw = {};
 
     // Silly animation
-    gsap.from(rectangle, { alpha: 0, duration: 0.2 });
+    gsap.from(rectangle, { alpha: 0, duration: 0.1 });
 
     // Clean up temp lines
     gsap.to(tempLines, {
       alpha: 0,
-      duration: 0.2,
+      duration: 0.1,
+      ease: "none",
+      onComplete: () =>
+        tempLines.destroy({
+          children: true,
+          texture: true,
+          baseTexture: true
+        })
+    });
+
+    // Clean up Graphic object
+    gfx.destroy();
+  }
+}
+function drawVessel(client) {
+  let x = client.x;
+  let y = client.y;
+
+  if (assets.drawing.startDraw) {
+    // create two temp guide vessels which sit above the grid layer
+    // they will be disposed of once we finish our vessel
+    if (assets.snapToGrid) tmpLines(x, y);
+    assets.drawing.currentDraw = { x: x, y: y };
+    assets.drawing.startDraw = false;
+  } else {
+    let start = {
+      x: assets.drawing.currentDraw.x,
+      y: assets.drawing.currentDraw.y
+    };
+
+    // Sort out the coordinates if we drew it backwards
+    let temp = { x: start.x, y: start.y };
+    if (start.x > x) (start.x = x), (x = temp.x);
+    if (start.y > y) (start.y = y), (y = temp.y);
+
+    // Vessel dimensions
+    let vesselDimensions = {
+      width: x - start.x,
+      height: y - start.y,
+      rectangle: {
+        x: start.x,
+        y: start.y + start.y * 0.2,
+        width: x - start.x,
+        height: (y - start.y) * 0.8
+      },
+      arcTop: { start: { x: 1, y: 0 }, end: { x: 0, y: 0 } },
+      arcBtm: { start: { x: 0, y: 0 }, end: { x: 0, y: 0 } }
+    };
+
+    let r = vesselDimensions.rectangle;
+    console.log(r);
+
+    let gfx = new PIXI.Graphics()
+      // Rectangle
+      .lineStyle(1, 0x000000, 1)
+      .beginFill(assets.drawing.fillColor)
+      .drawRect(r.x, r.y, r.width, r.height)
+      .endFill();
+    // Arc Top
+    // Arc Bottom
+
+    // Convert to Texture
+    let txtr = app.renderer.generateTexture(gfx);
+    let vessel = new PIXI.Sprite(txtr);
+    procGrafx.addChild(vessel);
+
+    // Fix minor glitch when drawing shapes backwards
+    let drawX = start.x < x ? start.x : x;
+    let drawY = start.y < y ? start.y : y;
+    vessel.position.set(drawX, drawY);
+
+    // Add to array, creates it if it doesn't already exist
+    if (assets.symbols.vessels) assets.symbols.vessels.push(vessel);
+    else assets.symbols.vessels = [vessel];
+
+    // Add to history
+    assets.history.push(vessel);
+    assets.drawing.startDraw = true;
+    assets.drawing.currentDraw = {};
+
+    // Silly animation
+    gsap.from(vessel, { alpha: 0, duration: 0.1 });
+
+    // Clean up temp lines
+    gsap.to(tempLines, {
+      alpha: 0,
+      duration: 0.1,
       ease: "none",
       onComplete: () =>
         tempLines.destroy({
@@ -174,8 +306,6 @@ function drawValve(client) {
   let y = client.y;
   // let units = assets.gridLines;
   let units = 10;
-
-  updateFillColor(); // Ensure up to date
 
   // prettier-ignore
   let path = [0 * units, 0 * units,
@@ -198,14 +328,14 @@ function drawValve(client) {
   vlv.y = y;
   vlv.anchor.x = 0.5;
   vlv.anchor.y = 0.5;
-  vlv.interactive = true;
+  vlv.interactive = false;
   vlv.buttonMode = true;
   vlv.on("mousedown", () => rotateValve(vlv));
 
   procValves.addChild(vlv);
 
   // Add to array, creates it if it doesn't already exist
-  if (assets.symbols.vales) assets.symbols.valves.push(vlv);
+  if (assets.symbols.valves) assets.symbols.valves.push(vlv);
   else assets.symbols.valves = [vlv];
 
   // Add to history
@@ -215,15 +345,13 @@ function drawValve(client) {
   gfx.destroy();
 
   // Animation
-  gsap.from(vlv, { alpha: 0, duration: 0.2, ease: "none" });
+  gsap.from(vlv, { alpha: 0, duration: 0.1, ease: "none" });
 }
 function drawPump(client) {
   let x = client.x;
   let y = client.y;
   // let units = assets.gridLines;
   let units = 10;
-
-  updateFillColor(); // Ensure up to date
 
   // prettier-ignore
   let path = [0 * units, 1 * units,
@@ -263,7 +391,7 @@ function drawPump(client) {
   gfx.destroy();
 
   // Animation
-  gsap.from(pmp, { alpha: 0, duration: 0.2, ease: "none" });
+  gsap.from(pmp, { alpha: 0, duration: 0.1, ease: "none" });
 }
 function rotateValve(that) {
   let action = document.querySelector('input[name="action"]:checked').value;
@@ -280,6 +408,9 @@ function mouseDown(e) {
     y: assets.snapToGrid ? scaleToGrid(y) : y
   };
 
+  // Ensure colours up to date
+  updateColors();
+
   let action = document.querySelector('input[name="action"]:checked').value;
   switch (action) {
     case "drawLine":
@@ -294,6 +425,9 @@ function mouseDown(e) {
     case "drawPump":
       drawPump(client);
       break;
+    case "drawVessel":
+      drawVessel(client);
+      break;
   }
 }
 function undo() {
@@ -302,7 +436,7 @@ function undo() {
 
     gsap.to(s, {
       alpha: 0,
-      duration: 0.2,
+      duration: 0.1,
       ease: "none",
       onComplete: () => s.destroy()
     });
@@ -377,11 +511,18 @@ function drawGrid() {
   }
   gridLines.cacheAsBitmap = true;
 }
+function updateColors() {
+  updateLineColor();
+  updateFillColor();
+  updateBGColor();
+}
 const updateLineColor = () => updateColor("lineColor");
 const updateFillColor = () => updateColor("fillColor");
 const updateBGColor = () => updateColor("bgColor");
 
-// Setup DOM and events
-document.querySelector("#app").appendChild(app.view);
-document.querySelector("#app").addEventListener("mousedown", mouseDown);
-drawGrid();
+window.onbeforeunload = function() {
+  return "";
+};
+window.onload = function() {
+  this.updateColors();
+};
