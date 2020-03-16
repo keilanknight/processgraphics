@@ -16,7 +16,7 @@ let assets = {
     currentDraw: {},
     lineColor: 0xffffff,
     fillColor: 0xffffff,
-    lineWidth: 2,
+    lineWidth: 3,
     interactiveMode: false,
     moveSymbol: null
   },
@@ -44,6 +44,13 @@ document
 
 drawGrid();
 
+function deleteSymbol(symbol) {
+  // We don't know where this symbol lives in our symbols object yet. Need to figure that out.
+  symbol.destroy();
+  assets.drawing.moveSymbol = null;
+  // Set interactive mode back on because we still have move selected, this is a bit of a waste...
+  interactiveMode(true);
+}
 function updateAction() {
   // Adding a delay to this because its being triggered before the value has updated in DOM
   // got to be a better way of doing this...
@@ -58,6 +65,9 @@ function updateHandler(option) {
       interactiveMode(true);
       break;
     case "moveSymbol":
+      interactiveMode(true);
+      break;
+    case "text":
       interactiveMode(true);
       break;
     default:
@@ -324,7 +334,7 @@ function drawValve(client) {
   let x = client.x;
   let y = client.y;
   // let units = assets.gridLines;
-  let units = 10;
+  let units = 12;
 
   // prettier-ignore
   let path = [0 * units, 0 * units,
@@ -479,6 +489,9 @@ function mouseDown(e) {
       break;
     case "moveSymbol":
       moveSymbolTo(client);
+      break;
+    case "text":
+      drawText(client);
       break;
   }
 }
