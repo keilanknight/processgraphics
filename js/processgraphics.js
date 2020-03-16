@@ -18,7 +18,8 @@ let assets = {
     fillColor: 0xffffff,
     lineWidth: 3,
     interactiveMode: false,
-    moveSymbol: null
+    moveSymbol: null,
+    text: null
   },
   symbols: {}
 };
@@ -422,6 +423,51 @@ function drawPump(client) {
   // Animation
   gsap.from(pmp, { alpha: 0, duration: 0.1, ease: "none" });
 }
+function drawText(client) {
+  assets.drawing.text = {
+    font: "Arial",
+    size: "12",
+    value: "Enter Text.....",
+    client: client
+  };
+  // First pop open the modal
+  document.getElementById("fontForm").style.display = "block";
+}
+function addText() {
+  if (assets.drawing.text) {
+    let t = assets.drawing.text;
+
+    // Update the values
+    t.value = document.getElementById("text-value").value;
+    t.fontSize = document.getElementById("text-size").value;
+
+    // Sort this out later....
+    let txt = new PIXI.Text(t.value);
+    txt.y = t.client.y;
+    txt.x = t.client.x;
+    txt.style.fontSize = Number(t.fontSize);
+    txt.style.fill = "white";
+    txt.style.fontFamily = "Arial";
+    procGrafx.addChild(txt);
+
+    // Interactive options
+    txt.interactive = false;
+    txt.buttonMode = true;
+    txt.on("mousedown", () => symbolAction(txt));
+
+    // Add to history
+    assets.history.push(txt);
+
+    // Add to array, creates it if it doesn't already exist
+    if (assets.symbols.texts) assets.symbols.texts.push(txt);
+    else assets.symbols.texts = [txt];
+
+    assets.drawing.text = null;
+
+    // Now close the modal....
+    document.getElementById("fontForm").style.display = "none";
+  }
+}
 function symbolAction(symbol) {
   let action = document.querySelector('input[name="action"]:checked').value;
   switch (action) {
@@ -445,9 +491,18 @@ function moveSymbol(symbol) {
 function moveSymbolTo(client) {
   if (assets.drawing.moveSymbol) {
     let symbol = assets.drawing.moveSymbol;
-    symbol.x = client.x;
-    symbol.y = client.y;
-    symbol.alpha = 1;
+    //symbol.x = client.x;
+    //symbol.y = client.y;
+    //symbol.alpha = 1;
+    // Let's animate it for fun...
+    gsap.to(symbol, {
+      x: client.x,
+      y: client.interactiveModey,
+      alpha: 1,
+      duration: 0.2,
+      ease: "back"
+    });
+
     assets.drawing.moveSymbol = null;
     interactiveMode(true);
   }

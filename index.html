@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Document</title>
+    <title>KK - ProcessGraphics</title>
     <link rel="stylesheet" href="css/libs/w3.css" />
     <link rel="stylesheet" href="css/processgraphics.css" />
   </head>
@@ -113,12 +113,12 @@
                 checked
               />LINE
               <input
-              class="w3-radio"
-              type="radio"
-              id="text"
-              name="action"
-              value="text"
-            />TEXT
+                class="w3-radio"
+                type="radio"
+                id="text"
+                name="action"
+                value="text"
+              />TEXT
               <input
                 class="w3-radio"
                 type="radio"
@@ -167,10 +167,41 @@
       </div>
       <div id="app"></div>
     </div>
+    <div id="fontForm" class="w3-modal w3-animate-opacity">
+      <div class="w3-modal-content" style="width: 350px">
+        <div class="w3-container w3-black w3-small">
+          <header class="w3-container w3-black">
+            <span onclick="document.getElementById('fontForm').style.display='none'"
+            class="w3-button w3-display-topright">&times;</span>
+            <h2>Add Text</h2>
+          </header>
+          <div class="w3-row"></div>
+          <div class="w3-row">
+            <div class="w3-col" style="width:75px"><p>Font:</p></div>
+            <div class="w3-rest">
+              <input class="w3-input" type="text" id="text-font" disabled value="Arial">
+            </div>
+          </div>
+          <div class="w3-row">
+            <div class="w3-col" style="width:75px"><p>Font Size:</p></div>
+            <div class="w3-rest">
+              <input class="w3-input" type="text" id="text-size" value="12">
+            </div>
+          </div>
+          <div class="w3-row">
+            <div class="w3-col" style="width:75px"><p>Text:</p></div>
+            <div class="w3-rest">
+              <input class="w3-input" type="text" id="text-value" value="Enter Text.....">
+            </div>
+          </div>
+          <div class="w3-row"><button class="w3-button w3-block w3-green" onclick="addText();">Add Text</button></div>
+        </div>
+      </div>
+    </div>
     <script src="js/libs/pixi-legacy.min.js"></script>
     <script src="js/libs/mousetrap.min.js"></script>
     <script src="js/libs/gsap.min.js"></script>
-    <script src="js/libs/howler.min.js"></script>
+    <!--<script src="js/libs/howler.min.js"></script> Not used...yet -->
     <script src="js/sidebar.js"></script>
     <script src="js/processgraphics.js"></script>
     <script src="js/keyboard-shortcuts.js"></script>
