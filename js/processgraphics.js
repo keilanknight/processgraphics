@@ -8,7 +8,7 @@ let app = new PIXI.Application({
   forceCanvas: true
 });
 let assets = {
-  gridLines: 10,
+  gridLines: 20,
   history: [],
   snapToGrid: true,
   drawing: {
@@ -94,6 +94,13 @@ function drawLine(client) {
       y: assets.drawing.currentDraw.y
     };
 
+    // Found the diaganol bug 1, need to do this delta check BEFORE increasing x
+    let xDelta = Math.abs(x - start.x);
+    let yDelta = Math.abs(y - start.y);
+
+    let diaganolLine = xDelta == yDelta ? true : false;
+    let horizontalLine = xDelta > yDelta ? true : false;
+
     // Sort out the coordinates if we drew it backwards
     let temp = { x: start.x, y: start.y };
     if (start.x > x) (start.x = x), (x = temp.x);
@@ -102,12 +109,9 @@ function drawLine(client) {
     // Edge out the line so they always join up
     x += assets.drawing.lineWidth;
 
-    let xDelta = Math.abs(x - start.x);
-    let yDelta = Math.abs(y - start.y);
-
     // Ensure line stays straight unless a 45 degree angle
-    if (xDelta != yDelta) {
-      if (xDelta > yDelta) y = start.y;
+    if (assets.snapToGrid && !diaganolLine) {
+      if (horizontalLine) y = start.y;
       else x = start.x;
     }
 
