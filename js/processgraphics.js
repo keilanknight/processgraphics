@@ -497,7 +497,7 @@ function moveSymbolTo(client) {
     // Let's animate it for fun...
     gsap.to(symbol, {
       x: client.x,
-      y: client.interactiveModey,
+      y: client.y,
       alpha: 1,
       duration: 0.2,
       ease: "back"
