@@ -4,7 +4,7 @@ let app = new PIXI.Application({
   antialias: true, // default: false
   transparent: false, // default: false
   resolution: 1, // default: 1
-  backgroundColor: 0xcccccc,
+  backgroundColor: 0x1a1a26,
   forceCanvas: true
 });
 let assets = {
@@ -17,7 +17,8 @@ let assets = {
     lineColor: 0xffffff,
     fillColor: 0xffffff,
     lineWidth: 2,
-    interactiveMode: false
+    interactiveMode: false,
+    moveSymbol: null
   },
   symbols: {}
 };
@@ -44,7 +45,7 @@ document
 drawGrid();
 
 function updateAction() {
-  // Adding a delay to this because its being triggered before the value has updated in DOMM
+  // Adding a delay to this because its being triggered before the value has updated in DOM
   // got to be a better way of doing this...
   setTimeout(() => {
     let action = document.querySelector('input[name="action"]:checked').value;
@@ -54,30 +55,25 @@ function updateAction() {
 function updateHandler(option) {
   switch (option) {
     case "rotate":
-      assets.drawing.interactiveMode = true;
-      // Iterate through all objects
-      Object.keys(assets.symbols).forEach(e => {
-        let symbols = assets.symbols[e];
-        for (let i = 0; i < symbols.length; i++) {
-          let symbol = symbols[i];
-          symbol.interactive = true;
-        }
-      });
+      interactiveMode(true);
+      break;
+    case "moveSymbol":
+      interactiveMode(true);
       break;
     default:
-      if (assets.drawing.interactiveMode) {
-        // Iterate through all objects
-        Object.keys(assets.symbols).forEach(e => {
-          let symbols = assets.symbols[e];
-          for (let i = 0; i < symbols.length; i++) {
-            let symbol = symbols[i];
-            symbol.interactive = false;
-          }
-        });
-      }
-      assets.drawing.interactiveMode = false;
+      if (assets.drawing.interactiveMode) interactiveMode(false);
       break;
   }
+}
+function interactiveMode(option) {
+  assets.drawing.interactiveMode = option;
+  Object.keys(assets.symbols).forEach(e => {
+    let symbols = assets.symbols[e];
+    for (let i = 0; i < symbols.length; i++) {
+      let symbol = symbols[i];
+      symbol.interactive = option;
+    }
+  });
 }
 function drawLine(client) {
   let x = client.x;
@@ -127,6 +123,11 @@ function drawLine(client) {
     // Add to Lines container and set correct position
     procLines.addChild(line);
     line.position.set(start.x, start.y);
+
+    // Interactive options
+    line.interactive = false;
+    line.buttonMode = true;
+    line.on("mousedown", () => symbolAction(line));
 
     // Add to array, creates it if it doesn't already exist
     if (assets.symbols.lines) assets.symbols.lines.push(line);
@@ -189,6 +190,20 @@ function drawRectangle(client) {
     let rectangle = new PIXI.Sprite(l);
     procGrafx.addChild(rectangle);
     rectangle.position.set(start.x, start.y);
+
+    // To rotate we need to anchor it in middle, this means the location will be off
+    rectangle.anchor.x = 0.5;
+    rectangle.anchor.y = 0.5;
+
+    // So lets compensate it, but in our data model this won't be the coords - TO DO anyway
+    // Ensure to use rounding to prevent aliasing effects
+    rectangle.x += Math.floor(rectangle.width * 0.5);
+    rectangle.y += Math.floor(rectangle.height * 0.5);
+
+    // Interactive options
+    rectangle.interactive = false;
+    rectangle.buttonMode = true;
+    rectangle.on("mousedown", () => symbolAction(rectangle));
 
     // Add to array, creates it if it doesn't already exist
     if (assets.symbols.rectangles) assets.symbols.rectangles.push(rectangle);
@@ -334,7 +349,7 @@ function drawValve(client) {
   vlv.anchor.y = 0.5;
   vlv.interactive = false;
   vlv.buttonMode = true;
-  vlv.on("mousedown", () => rotateValve(vlv));
+  vlv.on("mousedown", () => symbolAction(vlv));
 
   procValves.addChild(vlv);
 
@@ -376,16 +391,16 @@ function drawPump(client) {
   let pmp = new PIXI.Sprite(p);
   pmp.x = x;
   pmp.y = y;
-  // pmp.anchor.x = 0.5;
-  // pmp.anchor.y = 0.5;
-  // pmp.interactive = true;
-  // pmp.buttonMode = true;
-  // pmp.on("mousedown", () => rotatePump(pmp));
+
+  // Interactive options
+  pmp.interactive = false;
+  pmp.buttonMode = true;
+  pmp.on("mousedown", () => symbolAction(pmp));
 
   procGrafx.addChild(pmp);
 
   // Add to array, creates it if it doesn't already exist
-  if (assets.symbols.vales) assets.symbols.pumps.push(pmp);
+  if (assets.symbols.pumps) assets.symbols.pumps.push(pmp);
   else assets.symbols.pumps = [pmp];
 
   // Add to history
@@ -397,9 +412,39 @@ function drawPump(client) {
   // Animation
   gsap.from(pmp, { alpha: 0, duration: 0.1, ease: "none" });
 }
-function rotateValve(that) {
+function symbolAction(symbol) {
   let action = document.querySelector('input[name="action"]:checked').value;
-  if (action == "rotate") that.rotation += 1.5708;
+  switch (action) {
+    case "rotate":
+      rotateSymbol(symbol);
+      break;
+    case "moveSymbol":
+      moveSymbol(symbol);
+      break;
+  }
+}
+function moveSymbol(symbol) {
+  symbol.alpha = 0.5;
+  // Need a delay here as its being triggered too quickly
+  setTimeout(() => {
+    assets.drawing.moveSymbol = symbol;
+    // Turn off interactive mode to prevent messing with other objects
+    interactiveMode(false);
+  }, 10);
+}
+function moveSymbolTo(client) {
+  if (assets.drawing.moveSymbol) {
+    let symbol = assets.drawing.moveSymbol;
+    symbol.x = client.x;
+    symbol.y = client.y;
+    symbol.alpha = 1;
+    assets.drawing.moveSymbol = null;
+    interactiveMode(true);
+  }
+}
+function rotateSymbol(symbol) {
+  // Add more here once we have the document object made
+  symbol.rotation += 1.5708;
 }
 function mouseDown(e) {
   // Fix coordinates now we have new layers on page ruining pageX
@@ -432,21 +477,46 @@ function mouseDown(e) {
     case "drawVessel":
       drawVessel(client);
       break;
+    case "moveSymbol":
+      moveSymbolTo(client);
+      break;
   }
 }
 function undo() {
-  if (assets.history.length > 0) {
-    let s = assets.history[assets.history.length - 1];
-
-    gsap.to(s, {
+  // First check if we are in drawing mode, if so, just cancel that
+  if (!assets.drawing.startDraw) {
+    assets.drawing.startDraw = true;
+    // Clean up temp lines
+    gsap.to(tempLines, {
       alpha: 0,
       duration: 0.1,
       ease: "none",
-      onComplete: () => s.destroy()
+      onComplete: () =>
+        tempLines.destroy({
+          children: true,
+          texture: true,
+          baseTexture: true
+        })
     });
+  } else {
+    if (assets.history.length > 0) {
+      let s = assets.history[assets.history.length - 1];
+      gsap.to(s, {
+        alpha: 0,
+        duration: 0.1,
+        ease: "none",
+        onComplete: () => s.destroy()
+      });
+      gsap.to(s.scale, {
+        x: 0,
+        y: 0,
+        duration: 0.1,
+        ease: "none"
+      });
 
-    // Remove from array
-    assets.history.pop();
+      // Remove from array
+      assets.history.pop();
+    }
   }
 }
 function updateColor(option) {
