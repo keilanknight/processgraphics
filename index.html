@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="css/libs/w3.css" />
     <link rel="stylesheet" href="css/processgraphics.css" />
   </head>
-
   <body>
     <div id="mySidebar" class="sidebar">
       <a href="javascript:void(0)" class="closebtn" onclick="closeNav()"
@@ -16,7 +15,6 @@
       >
       Written by Keilan Knight ©2020
     </div>
-
     <div id="main">
       <div id="topMenu">
         <table>
@@ -149,23 +147,24 @@
                 value="rotate"
               />ROTATE
               <input
-              class="w3-radio"
-              type="radio"
-              id="moveSymbol"
-              name="action"
-              value="moveSymbol"
-            />MOVE
+                class="w3-radio"
+                type="radio"
+                id="moveSymbol"
+                name="action"
+                value="moveSymbol"
+              />MOVE
             </td>
           </tr>
         </table>
       </div>
       <div id="app"></div>
     </div>
-
     <script src="js/libs/pixi-legacy.min.js"></script>
+    <script src="js/libs/mousetrap.min.js"></script>
     <script src="js/libs/gsap.min.js"></script>
     <script src="js/libs/howler.min.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/processgraphics.js"></script>
+    <script src="js/keyboard-shortcuts.js"></script>
   </body>
 </html>

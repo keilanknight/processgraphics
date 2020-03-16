@@ -40,7 +40,7 @@ document.querySelector("#app").appendChild(app.view);
 document.querySelector("#app").addEventListener("mousedown", mouseDown);
 document
   .getElementsByName("action")
-  .forEach(e => e.addEventListener("mouseup", updateAction));
+  .forEach(e => e.addEventListener("change", updateAction));
 
 drawGrid();
 
@@ -50,7 +50,7 @@ function updateAction() {
   setTimeout(() => {
     let action = document.querySelector('input[name="action"]:checked').value;
     updateHandler(action);
-  }, 10);
+  }, 15);
 }
 function updateHandler(option) {
   switch (option) {
