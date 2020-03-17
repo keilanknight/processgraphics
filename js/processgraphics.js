@@ -1,6 +1,6 @@
 let assets = {
   width: 1900,
-  height: 1000,
+  height: 960,
   gridLines: 20,
   history: [],
   snapToGrid: true,
@@ -18,7 +18,7 @@ let assets = {
 };
 
 let app = new PIXI.Application({
-  width: assets.width, // default: 800
+  width: assets.width, // default: assets.height
   height: assets.height, // default: assets.height
   antialias: true, // default: false
   transparent: false, // default: false
@@ -781,7 +781,7 @@ function tmpLines(x, y) {
   // X LINE
   tempLine.moveTo(0, y).lineTo(assets.width, y);
   // Y LINE
-  tempLine.moveTo(x, 0).lineTo(x, 800);
+  tempLine.moveTo(x, 0).lineTo(x, assets.height);
   tempLines.addChild(tempLine);
   gsap.from(tempLines, { alpha: 0, duration: 0.1, ease: "none" });
 }
@@ -800,7 +800,7 @@ function drawGrid() {
   gridLines.addChild(lines);
   gridLines.position.set(0, 0);
   // vertical lines
-  for (let i = 0; i < 800 / assets.gridLines; i++) {
+  for (let i = 0; i < assets.height / assets.gridLines; i++) {
     lines.lineStyle(1, 0x3333ff, 0.4);
     if (i % 2 == 0) lines.lineStyle(1, 0x3333ff, 0.2);
     lines.moveTo(0, i * assets.gridLines).lineTo(assets.width, i * assets.gridLines);
@@ -809,7 +809,7 @@ function drawGrid() {
   for (let i = 0; i < assets.width / assets.gridLines; i++) {
     lines.lineStyle(1, 0x3333ff, 0.4);
     if (i % 2 == 0) lines.lineStyle(1, 0x3333ff, 0.2);
-    lines.moveTo(i * assets.gridLines, 0).lineTo(i * assets.gridLines, 800);
+    lines.moveTo(i * assets.gridLines, 0).lineTo(i * assets.gridLines, assets.height);
   }
   gridLines.cacheAsBitmap = true;
 }
