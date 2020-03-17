@@ -1,19 +1,6 @@
-let app = new PIXI.Application({
-  width: 1280, // default: 800
-  height: 600, // default: 600
-  antialias: true, // default: false
-  transparent: false, // default: false
-  resolution: 1, // default: 1
-  backgroundColor: 0x1a1a26,
-  forceCanvas: true
-});
-
-let canvasRenderer = new PIXI.CanvasRenderer({
-  antialias: true,
-  resolution: 1
-});
-
 let assets = {
+  width: 1900,
+  height: 1000,
   gridLines: 20,
   history: [],
   snapToGrid: true,
@@ -29,6 +16,23 @@ let assets = {
   },
   symbols: {}
 };
+
+let app = new PIXI.Application({
+  width: assets.width, // default: 800
+  height: assets.height, // default: assets.height
+  antialias: true, // default: false
+  transparent: false, // default: false
+  resolution: 1, // default: 1
+  backgroundColor: 0x1a1a26,
+  forceCanvas: true
+});
+
+let canvasRenderer = new PIXI.CanvasRenderer({
+  antialias: true,
+  resolution: 1
+});
+
+
 
 const procLines = new PIXI.Container();
 const procGrafx = new PIXI.Container();
@@ -775,7 +779,7 @@ function tmpLines(x, y) {
   let tempLine = new PIXI.Graphics();
   tempLine.lineStyle(1, 0xff3333, 1);
   // X LINE
-  tempLine.moveTo(0, y).lineTo(1280, y);
+  tempLine.moveTo(0, y).lineTo(assets.width, y);
   // Y LINE
   tempLine.moveTo(x, 0).lineTo(x, 800);
   tempLines.addChild(tempLine);
@@ -799,10 +803,10 @@ function drawGrid() {
   for (let i = 0; i < 800 / assets.gridLines; i++) {
     lines.lineStyle(1, 0x3333ff, 0.4);
     if (i % 2 == 0) lines.lineStyle(1, 0x3333ff, 0.2);
-    lines.moveTo(0, i * assets.gridLines).lineTo(1280, i * assets.gridLines);
+    lines.moveTo(0, i * assets.gridLines).lineTo(assets.width, i * assets.gridLines);
   }
   // horizontal lines
-  for (let i = 0; i < 1280 / assets.gridLines; i++) {
+  for (let i = 0; i < assets.width / assets.gridLines; i++) {
     lines.lineStyle(1, 0x3333ff, 0.4);
     if (i % 2 == 0) lines.lineStyle(1, 0x3333ff, 0.2);
     lines.moveTo(i * assets.gridLines, 0).lineTo(i * assets.gridLines, 800);
