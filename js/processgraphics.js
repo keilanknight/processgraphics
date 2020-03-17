@@ -32,8 +32,6 @@ let canvasRenderer = new PIXI.CanvasRenderer({
   resolution: 1
 });
 
-
-
 const procLines = new PIXI.Container();
 const procGrafx = new PIXI.Container();
 const procValves = new PIXI.Container();
@@ -55,131 +53,6 @@ document
 
 drawGrid();
 
-function deleteSymbol(symbol) {
-  // We don't know where this symbol lives in our symbols object yet. Need to figure that out.
-  symbol.destroy();
-  assets.drawing.moveSymbol = null;
-  // Set interactive mode back on because we still have move selected, this is a bit of a waste...
-  interactiveMode(true);
-}
-function updateAction() {
-  // Adding a delay to this because its being triggered before the value has updated in DOM
-  // got to be a better way of doing this...
-  setTimeout(() => {
-    let action = document.querySelector('input[name="action"]:checked').value;
-    updateHandler(action);
-  }, 15);
-}
-function updateHandler(option) {
-  switch (option) {
-    case "rotate":
-      interactiveMode(true);
-      break;
-    case "moveSymbol":
-      interactiveMode(true);
-      break;
-    case "text":
-      interactiveMode(true);
-      break;
-    default:
-      if (assets.drawing.interactiveMode) interactiveMode(false);
-      break;
-  }
-}
-function interactiveMode(option) {
-  assets.drawing.interactiveMode = option;
-  Object.keys(assets.symbols).forEach(e => {
-    let symbols = assets.symbols[e];
-    for (let i = 0; i < symbols.length; i++) {
-      let symbol = symbols[i];
-      symbol.interactive = option;
-    }
-  });
-}
-function drawLine2(client) {
-  let x = client.x;
-  let y = client.y;
-  if (assets.drawing.startDraw) {
-    // create two temp guide lines which sit above the grid layer
-    // they will be disposed of once we finish our line
-    if (assets.snapToGrid) tmpLines(x, y);
-    assets.drawing.currentDraw = { x: x, y: y };
-    assets.drawing.startDraw = false;
-  } else {
-    let start = {
-      x: assets.drawing.currentDraw.x,
-      y: assets.drawing.currentDraw.y
-    };
-
-    // Found the diaganol bug 1, need to do this delta check BEFORE increasing x
-    let xDelta = Math.abs(x - start.x);
-    let yDelta = Math.abs(y - start.y);
-
-    let diaganolLine = xDelta == yDelta ? true : false;
-    let horizontalLine = xDelta > yDelta ? true : false;
-
-    // Sort out the coordinates if we drew it backwards
-    let temp = { x: start.x, y: start.y };
-    if (start.x > x) (start.x = x), (x = temp.x);
-    if (start.y > y) (start.y = y), (y = temp.y);
-
-    // Edge out the line so they always join up
-    x += assets.drawing.lineWidth;
-
-    // Ensure line stays straight unless a 45 degree angle
-    if (assets.snapToGrid && !diaganolLine) {
-      if (horizontalLine) y = start.y;
-      else x = start.x;
-    }
-
-    let gfx = (assets.drawing.currentDraw = new PIXI.Graphics())
-      .lineStyle(assets.drawing.lineWidth, assets.drawing.lineColor, 1)
-      .moveTo(start.x, start.y)
-      .lineTo(x, y);
-
-    // Convert to Texture
-    let l = app.renderer.generateTexture(gfx);
-    let line = new PIXI.Sprite(l);
-
-    // Add to Lines container and set correct position
-    procLines.addChild(line);
-    line.position.set(start.x, start.y);
-
-    // Interactive options
-    line.interactive = false;
-    line.buttonMode = true;
-    line.on("mousedown", () => symbolAction(line));
-
-    // Add to array, creates it if it doesn't already exist
-    if (assets.symbols.lines) assets.symbols.lines.push(line);
-    else assets.symbols.lines = [line];
-
-    // Add to history
-    assets.history.push(line);
-    assets.drawing.startDraw = true;
-    assets.drawing.currentDraw = {};
-
-    // Silly animation
-    gsap.from(line, { alpha: 0, duration: 0.1 });
-
-    // Clean up temp lines
-    gsap.to(tempLines, {
-      alpha: 0,
-      duration: 0.1,
-      ease: "none",
-      onComplete: () =>
-        tempLines.destroy({
-          children: true,
-          texture: true,
-          baseTexture: true
-        })
-    });
-
-    // Clean up Graphic object
-    gfx.destroy();
-  }
-}
-
 class Shape {
   constructor(client) {
     // Setup initial properties
@@ -194,12 +67,13 @@ class Shape {
     this.graphic = new PIXI.Graphics();
     this.graphic.alpha = 0.5;
     this.sprite = new PIXI.Sprite();
+    this.id = null;
 
     // Draw guide lines if snap to grid enabled
-    if (assets.snapToGrid) tmpLines(client.x, client.y);
+    if (assets.snapToGrid) addTempLines(client.x, client.y);
 
-    // Add Graphic to the process graphics container
-    procGrafx.addChild(this.graphic);
+    // Add Graphic to the main stage so it is on top of everything else
+    app.stage.addChild(this.graphic);
 
     // Kick off the event listerner for dragging the size and set dragging flag
     assets.drawing.dragging = true;
@@ -214,28 +88,42 @@ class Shape {
     if (assets.drawing.dragging) this.draw();
     else this.finishDrawing();
   }
+  addToStage() {
+    switch (this.type) {
+      case "line":
+        procLines.addChild(this.sprite);
+        break;
+      default:
+        procGrafx.addChild(this.sprite);
+        break;
+    }
+  }
   finishDrawing() {
     // Need to clear the previous graphic
     this.graphic.destroy();
     this.graphic = new PIXI.Graphics();
 
     // Normalise the coordinates in case we drew the symbol backwards
-    // Don't do this for centre aligned objects
-    if (!this.centred) this.normaliseCoordinates();
+    this.normaliseCoordinates();
 
     // Redraw and convert to sprite texture
     this.draw();
     this.convertToSprite();
-    //this.makeInteractive();
-    app.stage.addChild(this.sprite);
+    this.makeInteractive();
+    this.addToStage();
     removeTempLines();
 
-    // Add to undo stack - just the sprite for now...correct later
-    assets.history.push(this.sprite);
+    // Add to undo stack
+    assets.history.push(this);
 
-    // Add to array, creates it if it doesn't already exist
-    if (assets.symbols[this.type]) assets.symbols[this.type].push(this);
-    else assets.symbols[this.type] = [this];
+    // Add to array, creates it if it doesn't already exist. Create ID so we know array position
+    if (assets.symbols[this.type]) {
+      this.id = assets.symbols[this.type].length;
+      assets.symbols[this.type].push(this);
+    } else {
+      this.id = 0;
+      assets.symbols[this.type] = [this];
+    }
 
     // Reset draw flags
     assets.drawing.currentDraw = null;
@@ -262,21 +150,35 @@ class Shape {
 
     // Destroy graphic object
     this.graphic.destroy();
+    delete this.graphics;
   }
   normaliseCoordinates() {
-    if (this.width < 0) {
+    if (!this.centred) {
+      if (this.width < 0) {
+        this.width = Math.abs(this.width);
+        this.x -= this.width;
+      }
+      if (this.height < 0) {
+        this.height = Math.abs(this.width);
+        this.y -= this.height;
+      }
+    } else {
       this.width = Math.abs(this.width);
-      this.x -= this.width;
-    }
-    if (this.height < 0) {
-      this.height = Math.abs(this.width);
-      this.y -= this.height;
+      this.height = Math.abs(this.height);
     }
   }
   makeInteractive() {
     this.sprite.interactive = false;
     this.sprite.buttonMode = true;
     this.sprite.on("mousedown", () => symbolAction(this.sprite));
+  }
+  destroy() {
+    // Destroy the sprite object
+    this.sprite.destroy();
+    // And remove from array
+    assets.symbols[this.type].splice(this.id, 1);
+    // And clean up array is last item
+    if (assets.symbols[this.type].length == 0) delete assets.symbols[this.type];
   }
 }
 class Rectangle extends Shape {
@@ -328,6 +230,7 @@ class Ellipse extends Shape {
       .endFill();
   }
 }
+// Drawing Functions
 function drawRectangle(client) {
   if (!assets.drawing.currentDraw) {
     assets.drawing.currentDraw = new Rectangle(client);
@@ -349,19 +252,6 @@ function drawEllipse(client) {
     assets.drawing.currentDraw.update(client);
   }
 }
-function removeTempLines() {
-  gsap.to(tempLines, {
-    alpha: 0,
-    duration: 0.1,
-    ease: "none",
-    onComplete: () =>
-      tempLines.destroy({
-        children: true,
-        texture: true,
-        baseTexture: true
-      })
-  });
-}
 function drawVessel(client) {
   let x = client.x;
   let y = client.y;
@@ -369,7 +259,7 @@ function drawVessel(client) {
   if (assets.drawing.startDraw) {
     // create two temp guide vessels which sit above the grid layer
     // they will be disposed of once we finish our vessel
-    if (assets.snapToGrid) tmpLines(x, y);
+    if (assets.snapToGrid) addTempLines(x, y);
     assets.drawing.currentDraw = { x: x, y: y };
     assets.drawing.startDraw = false;
   } else {
@@ -585,6 +475,33 @@ function addText() {
     document.getElementById("fontForm").style.display = "none";
   }
 }
+function addTempLines(x, y) {
+  if (!tempLines.destroyed) {
+    tempLines = new PIXI.Container();
+    app.stage.addChild(tempLines);
+  }
+  let tempLine = new PIXI.Graphics();
+  tempLine.lineStyle(1, 0xff3333, 1);
+  // X LINE
+  tempLine.moveTo(0, y).lineTo(assets.width, y);
+  // Y LINE
+  tempLine.moveTo(x, 0).lineTo(x, assets.height);
+  tempLines.addChild(tempLine);
+  gsap.from(tempLines, { alpha: 0, duration: 0.1, ease: "none" });
+}
+function removeTempLines() {
+  gsap.to(tempLines, {
+    alpha: 0,
+    duration: 0.1,
+    ease: "none",
+    onComplete: () =>
+      tempLines.destroy({
+        children: true,
+        texture: true,
+        baseTexture: true
+      })
+  });
+}
 function symbolAction(symbol) {
   let action = document.querySelector('input[name="action"]:checked').value;
   switch (action) {
@@ -595,6 +512,47 @@ function symbolAction(symbol) {
       moveSymbol(symbol);
       break;
   }
+}
+function deleteSymbol(symbol) {
+  // We don't know where this symbol lives in our symbols object yet. Need to figure that out.
+  symbol.destroy();
+  assets.drawing.moveSymbol = null;
+  // Set interactive mode back on because we still have move selected, this is a bit of a waste...
+  interactiveMode(true);
+}
+function updateAction() {
+  // Adding a delay to this because its being triggered before the value has updated in DOM
+  // got to be a better way of doing this...
+  setTimeout(() => {
+    let action = document.querySelector('input[name="action"]:checked').value;
+    updateHandler(action);
+  }, 15);
+}
+function updateHandler(option) {
+  switch (option) {
+    case "rotate":
+      interactiveMode(true);
+      break;
+    case "moveSymbol":
+      interactiveMode(true);
+      break;
+    case "text":
+      interactiveMode(true);
+      break;
+    default:
+      if (assets.drawing.interactiveMode) interactiveMode(false);
+      break;
+  }
+}
+function interactiveMode(option) {
+  assets.drawing.interactiveMode = option;
+  Object.keys(assets.symbols).forEach(e => {
+    let symbols = assets.symbols[e];
+    for (let i = 0; i < symbols.length; i++) {
+      let symbol = symbols[i];
+      symbol.interactive = option;
+    }
+  });
 }
 function moveSymbol(symbol) {
   symbol.alpha = 0.5;
@@ -730,19 +688,23 @@ function undo() {
   } else {
     if (assets.history.length > 0) {
       let s = assets.history[assets.history.length - 1];
-      gsap.to(s, {
-        alpha: 0,
-        duration: 0.1,
-        ease: "none",
-        onComplete: () => s.destroy()
-      });
-      gsap.to(s.scale, {
-        x: 0,
-        y: 0,
-        duration: 0.1,
-        ease: "none"
-      });
 
+      if (s.sprite) {
+        s.destroy();
+      } else {
+        gsap.to(s, {
+          alpha: 0,
+          duration: 0.1,
+          ease: "none",
+          onComplete: () => s.destroy()
+        });
+        gsap.to(s.scale, {
+          x: 0,
+          y: 0,
+          duration: 0.1,
+          ease: "none"
+        });
+      }
       // Remove from array
       assets.history.pop();
     }
@@ -771,20 +733,6 @@ function toggleGrid() {
 function scaleToGrid(x) {
   return Math.round(x / assets.gridLines) * assets.gridLines;
 }
-function tmpLines(x, y) {
-  if (!tempLines.destroyed) {
-    tempLines = new PIXI.Container();
-    app.stage.addChild(tempLines);
-  }
-  let tempLine = new PIXI.Graphics();
-  tempLine.lineStyle(1, 0xff3333, 1);
-  // X LINE
-  tempLine.moveTo(0, y).lineTo(assets.width, y);
-  // Y LINE
-  tempLine.moveTo(x, 0).lineTo(x, assets.height);
-  tempLines.addChild(tempLine);
-  gsap.from(tempLines, { alpha: 0, duration: 0.1, ease: "none" });
-}
 function grid(x) {
   assets.snapToGrid = true;
   gridLines.destroy({ children: true, texture: true, baseTexture: true });
@@ -803,13 +751,17 @@ function drawGrid() {
   for (let i = 0; i < assets.height / assets.gridLines; i++) {
     lines.lineStyle(1, 0x3333ff, 0.4);
     if (i % 2 == 0) lines.lineStyle(1, 0x3333ff, 0.2);
-    lines.moveTo(0, i * assets.gridLines).lineTo(assets.width, i * assets.gridLines);
+    lines
+      .moveTo(0, i * assets.gridLines)
+      .lineTo(assets.width, i * assets.gridLines);
   }
   // horizontal lines
   for (let i = 0; i < assets.width / assets.gridLines; i++) {
     lines.lineStyle(1, 0x3333ff, 0.4);
     if (i % 2 == 0) lines.lineStyle(1, 0x3333ff, 0.2);
-    lines.moveTo(i * assets.gridLines, 0).lineTo(i * assets.gridLines, assets.height);
+    lines
+      .moveTo(i * assets.gridLines, 0)
+      .lineTo(i * assets.gridLines, assets.height);
   }
   gridLines.cacheAsBitmap = true;
 }
