@@ -177,9 +177,107 @@ function drawRectangle(client) {
     // create two temp guide rectangles which sit above the grid layer
     // they will be disposed of once we finish our rectangle
     if (assets.snapToGrid) tmpLines(x, y);
-    assets.drawing.currentDraw = { x: x, y: y };
+    assets.drawing.start = { x: x, y: y };
     assets.drawing.startDraw = false;
+
+    // Draw initial rectangle as 1x1
+    let gfx = new PIXI.Graphics()
+      .lineStyle(1, 0x000000, 1)
+      .beginFill(assets.drawing.fillColor)
+      .drawRect(x, y, assets.gridLines, assets.gridLines)
+      .endFill();
+
+    // Give it an alpha of 0.5 and place on the temp lines layer
+    gfx.alpha = 0.5;
+    tempLines.addChild(gfx);
+
+    // Set up a temp reference to the object
+    assets.drawing.currentDraw = gfx;
+
+    // We are now dragging
+    assets.drawing.dragging = true;
+    // Create the mousemove listener, we want to destroy this once done
+    document.querySelector("#app").addEventListener("mousemove", mouseMove);
+  } else if (assets.drawing.dragging) {
+    let r = assets.drawing.currentDraw;
+    assets.drawing.props = {
+      height: client.x - assets.drawing.start.x,
+      width: client.y - assets.drawing.start.y
+    };
+    // Set new properties
+    r.clear()
+      .lineStyle(1, 0x000000, 1)
+      .beginFill(assets.drawing.fillColor)
+      .drawRect(
+        assets.drawing.start.x,
+        assets.drawing.start.y,
+        assets.drawing.props.height,
+        assets.drawing.props.width
+      )
+      .endFill();
   } else {
+    // Kill the temp rectangle
+    assets.drawing.currentDraw.destroy();
+    //And create a new one
+    let r = new PIXI.Graphics();
+
+    assets.drawing.props = {
+      height: Math.abs(client.x - assets.drawing.start.x),
+      width: Math.abs(client.y - assets.drawing.start.y)
+    };
+
+    // Sort out the coordinates if we drew it backwards
+    if (assets.drawing.start.x > client.x) assets.drawing.start.x = client.x;
+    if (assets.drawing.start.y > client.y) assets.drawing.start.y = client.y;
+
+    // Set new properties
+    r.lineStyle(1, 0x000000, 1)
+      .beginFill(assets.drawing.fillColor)
+      .drawRect(
+        assets.drawing.start.x,
+        assets.drawing.start.y,
+        assets.drawing.props.height,
+        assets.drawing.props.width
+      )
+      .endFill();
+
+    // Convert to Texture
+    let l = app.renderer.generateTexture(r);
+    let rectangle = new PIXI.Sprite(l);
+    procGrafx.addChild(rectangle);
+
+    rectangle.position.set(assets.drawing.start.x, assets.drawing.start.y);
+
+    // Interactive options
+    rectangle.interactive = false;
+    rectangle.buttonMode = true;
+    rectangle.on("mousedown", () => symbolAction(rectangle));
+
+    // Add to undo stack
+    assets.history.push(rectangle);
+
+    // Clean up temp lines
+    gsap.to(tempLines, {
+      alpha: 0,
+      duration: 0.1,
+      ease: "none",
+      onComplete: () =>
+        tempLines.destroy({
+          children: true,
+          texture: true,
+          baseTexture: true
+        })
+    });
+
+    // Clean up Graphic object
+    r.destroy();
+    // assets.drawing.currentDraw = null;
+
+    // Reset draw flag
+    assets.drawing.startDraw = true;
+  }
+
+  /*else {
     let start = {
       x: assets.drawing.currentDraw.x,
       y: assets.drawing.currentDraw.y
@@ -243,7 +341,7 @@ function drawRectangle(client) {
 
     // Clean up Graphic object
     gfx.destroy();
-  }
+  } */
 }
 function drawVessel(client) {
   let x = client.x;
@@ -525,6 +623,11 @@ function mouseDown(e) {
   // Ensure colours up to date
   updateColors();
 
+  // Reset dragging flag
+  assets.drawing.dragging = false;
+  // And remove mousemove listener
+  document.querySelector("#app").removeEventListener("mousemove", mouseMove);
+
   let action = document.querySelector('input[name="action"]:checked').value;
   switch (action) {
     case "drawLine":
@@ -547,6 +650,38 @@ function mouseDown(e) {
       break;
     case "text":
       drawText(client);
+      break;
+  }
+}
+function mouseMove(e) {
+  // NEED TO CONSOLIDATE MOST OF THIS INTO GENERAL MOUSE ACTION FUNCTION
+
+  // Fix coordinates now we have new layers on page ruining pageX
+  let topMenu = document.querySelector("#topMenu");
+  let x = e.pageX - offsetX;
+  let y = e.pageY - topMenu.clientHeight;
+
+  let client = {
+    x: assets.snapToGrid ? scaleToGrid(x) : x,
+    y: assets.snapToGrid ? scaleToGrid(y) : y
+  };
+
+  let action = document.querySelector('input[name="action"]:checked').value;
+  switch (action) {
+    case "drawLine":
+      drawLine(client);
+      break;
+    case "drawValve":
+      drawValve(client);
+      break;
+    case "drawRectangle":
+      drawRectangle(client);
+      break;
+    case "drawPump":
+      drawPump(client);
+      break;
+    case "drawVessel":
+      drawVessel(client);
       break;
   }
 }
@@ -623,7 +758,6 @@ function tmpLines(x, y) {
   tempLine.moveTo(x, 0).lineTo(x, 800);
   tempLines.addChild(tempLine);
   gsap.from(tempLines, { alpha: 0, duration: 0.1, ease: "none" });
-  tempLines.cacheAsBitmap = true;
 }
 function grid(x) {
   assets.snapToGrid = true;
