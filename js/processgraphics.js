@@ -549,7 +549,13 @@ function interactiveMode(option) {
   Object.keys(assets.symbols).forEach(e => {
     let symbols = assets.symbols[e];
     for (let i = 0; i < symbols.length; i++) {
-      let symbol = symbols[i];
+      let symbol = null;
+      // To fix this once all symbols are corrected
+      if (symbol.sprite) {
+        symbol = symbols[i].sprite;
+      } else {
+        symbol = symbols[i];
+      }
       symbol.interactive = option;
     }
   });
