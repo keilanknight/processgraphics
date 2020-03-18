@@ -288,7 +288,6 @@ class Polygon extends Shape {
 
     if (this.drawing) {
       this.currentPoint++;
-      console.log(this.points);
       this.registerMoveListener();
       assets.drawing.dragging = true;
     } else {

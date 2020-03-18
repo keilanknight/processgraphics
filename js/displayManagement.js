@@ -50,7 +50,6 @@ function saveDisplay() {
     }
   }
 
-  console.log(JSON.stringify(display));
 }
 
 function loadDisplay(filename) {
@@ -94,9 +93,6 @@ function loadFromFile(displayJSON) {
         switch (symType) {
           case "line":
             let l = new Line(x);
-            // Fix the fixes that are made later on
-            l.width -= l.lineWidth;
-            l.x -= l.lineWidth;
             l.loadFromFile(symJSON);
             break;
           case "ellipse":
