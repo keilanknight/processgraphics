@@ -330,6 +330,17 @@ class Pump extends Shape {
       .endFill();
   }
 }
+class Text extends Shape{
+  constructor(client) {
+    super(client);
+    this.type = "text";
+    this.resizable = false;
+    this.centred = true;
+  }
+  draw(){
+
+  };
+}
 // Drawing Functions
 function drawRectangle(client) {
   if (!assets.drawing.currentDraw) {
@@ -378,4 +389,8 @@ function drawPump(client) {
   } else {
     assets.drawing.currentDraw.update(client);
   }
+}
+
+function copySymbol(sym){
+
 }

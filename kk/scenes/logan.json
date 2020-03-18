@@ -1,0 +1,47 @@
+{"frames": {
+
+"logan0.png":
+{
+	"frame": {"x":484,"y":1,"w":180,"h":235},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":5,"y":7,"w":180,"h":235},
+	"sourceSize": {"w":190,"h":260}
+},
+"logan1.png":
+{
+	"frame": {"x":145,"y":1,"w":166,"h":246},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":20,"y":6,"w":166,"h":246},
+	"sourceSize": {"w":190,"h":260}
+},
+"logan2.png":
+{
+	"frame": {"x":1,"y":1,"w":142,"h":249},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":26,"y":7,"w":142,"h":249},
+	"sourceSize": {"w":190,"h":260}
+},
+"logan3.png":
+{
+	"frame": {"x":313,"y":1,"w":169,"h":238},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":14,"y":10,"w":169,"h":238},
+	"sourceSize": {"w":190,"h":260}
+}},
+"animations": {
+	"logan": ["logan0.png","logan1.png","logan2.png","logan3.png"]
+},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "logan.png",
+	"format": "RGBA8888",
+	"size": {"w":665,"h":251},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:c3b7c0712cbb6fcfed53ab6cf8fc4341:bd1e0292dd3b0a261d9f12e6f0c8c016:ed3f043c67713eddeb0a60bc9d1ff16e$"
+}
+}
