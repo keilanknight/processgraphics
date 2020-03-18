@@ -1,0 +1,189 @@
+{
+  "displayName": "Methanol Recovery Process",
+  "thumbnail": "meoh.png",
+  "author": "",
+  "history": [],
+  "symbols": {
+    "ellipse": [
+      {
+        "name": "ellipse0",
+        "x": 700,
+        "y": 260,
+        "width": 120,
+        "height": 40,
+        "lineColor": 0,
+        "fillColor": 3947607
+      }
+    ],
+    "rectangle": [
+      {
+        "name": "rectangle0",
+        "x": 580,
+        "y": 260,
+        "width": 240,
+        "height": 380,
+        "lineColor": 0,
+        "fillColor": 3947607
+      }
+    ],
+    "polygon": [
+      {
+        "name": "polygon0",
+        "x": 580,
+        "y": 640,
+        "width": 240,
+        "height": 0,
+        "lineColor": 0,
+        "fillColor": 3947607,
+        "points": [
+          { "x": 580, "y": 640 },
+          { "x": 540, "y": 700 },
+          { "x": 540, "y": 780 },
+          { "x": 860, "y": 780 },
+          { "x": 860, "y": 700 },
+          { "x": 820, "y": 640 }
+        ]
+      }
+    ],
+    "line": [
+      {
+        "name": "line0",
+        "x": 20,
+        "y": 300,
+        "width": 564,
+        "height": 0,
+        "lineColor": 16711808,
+        "fillColor": 3947607,
+        "lineWidth": 4
+      },
+      {
+        "name": "line1",
+        "x": 700,
+        "y": 60,
+        "width": 0,
+        "height": 160,
+        "lineColor": 16711808,
+        "fillColor": 3947607,
+        "lineWidth": 4
+      },
+      {
+        "name": "line2",
+        "x": 700,
+        "y": 60,
+        "width": 644,
+        "height": 0,
+        "lineColor": 16711808,
+        "fillColor": 3947607,
+        "lineWidth": 4
+      },
+      {
+        "name": "line3",
+        "x": 820,
+        "y": 540,
+        "width": 204,
+        "height": 0,
+        "lineColor": 33023,
+        "fillColor": 3947607,
+        "lineWidth": 4
+      },
+      {
+        "name": "line4",
+        "x": 1020,
+        "y": 540,
+        "width": 0,
+        "height": 360,
+        "lineColor": 33023,
+        "fillColor": 3947607,
+        "lineWidth": 4
+      },
+      {
+        "name": "line5",
+        "x": 820,
+        "y": 420,
+        "width": 324,
+        "height": 0,
+        "lineColor": 33023,
+        "fillColor": 3947607,
+        "lineWidth": 4
+      },
+      {
+        "name": "line6",
+        "x": 1140,
+        "y": 420,
+        "width": 0,
+        "height": 480,
+        "lineColor": 33023,
+        "fillColor": 3947607,
+        "lineWidth": 4
+      }
+    ],
+    "valve": [
+      {
+        "name": "valve0",
+        "x": 480,
+        "y": 300,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve1",
+        "x": 700,
+        "y": 140,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve2",
+        "x": 1140,
+        "y": 740,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve3",
+        "x": 1020,
+        "y": 740,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve4",
+        "x": 880,
+        "y": 540,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve5",
+        "x": 880,
+        "y": 420,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      }
+    ],
+    "texts": [
+      {
+        "name": "texts0",
+        "x": 640,
+        "y": 280,
+        "width": 115,
+        "height": 20,
+        "text": "Reactor D-111",
+        "font": "normal normal normal 18px \"Arial\"",
+        "fontColor": 16777215
+      }
+    ]
+  }
+}

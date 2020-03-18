@@ -18,6 +18,9 @@ function bindAll() {
     document.getElementById("text").checked = true;
     updateHandler("text");
   });
+  Mousetrap.bind(["ctrl+z", "command+z"], function() {
+    undo();
+  });
 
   // Handle Moving
   Mousetrap.bind("left", function() {
@@ -59,11 +62,11 @@ function bindAll() {
   });
 }
 
-function unbindAll(){
-    // prettier-ignore
-    let keysToUnbind = ["l", "r", "m", "left", "right", "up", "down", "enter", ["del", "backspace"]];
-    
-    for (let i=0; i<keysToUnbind.length; i++){
-        Mousetrap.unbind(keysToUnbind[i]);
-    }
+function unbindAll() {
+  // prettier-ignore
+  let keysToUnbind = ["l", "r", "m", "left", "right", "up", "down", "enter", ["del", "backspace"]];
+
+  for (let i = 0; i < keysToUnbind.length; i++) {
+    Mousetrap.unbind(keysToUnbind[i]);
+  }
 }

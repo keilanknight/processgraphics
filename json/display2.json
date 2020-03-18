@@ -1,0 +1,711 @@
+{
+  "displayName": "DME Recovery Process",
+  "thumbnail": "dme.png",
+  "author": "",
+  "history": [],
+  "symbols": {
+    "ellipse": [
+      {
+        "name": "ellipse0",
+        "x": 750,
+        "y": 210,
+        "width": 60,
+        "height": 30,
+        "lineColor": 0,
+        "fillColor": 3947607
+      },
+      {
+        "name": "ellipse1",
+        "x": 750,
+        "y": 750,
+        "width": 60,
+        "height": 30,
+        "lineColor": 0,
+        "fillColor": 3947607
+      },
+      {
+        "name": "ellipse2",
+        "x": 1500,
+        "y": 150,
+        "width": 60,
+        "height": 30,
+        "lineColor": 0,
+        "fillColor": 3947607
+      },
+      {
+        "name": "ellipse3",
+        "x": 1500,
+        "y": 360,
+        "width": 60,
+        "height": 30,
+        "lineColor": 0,
+        "fillColor": 3947607
+      },
+      {
+        "name": "ellipse4",
+        "x": 480,
+        "y": 630,
+        "width": 30,
+        "height": 120,
+        "lineColor": 0,
+        "fillColor": 4671335
+      },
+      {
+        "name": "ellipse5",
+        "x": 510,
+        "y": 270,
+        "width": 30,
+        "height": 30,
+        "lineColor": 0,
+        "fillColor": 4671335
+      },
+      {
+        "name": "ellipse6",
+        "x": 1060,
+        "y": 110,
+        "width": 10,
+        "height": 10,
+        "lineColor": 0,
+        "fillColor": 65280
+      },
+      {
+        "name": "ellipse7",
+        "x": 1120,
+        "y": 110,
+        "width": 10,
+        "height": 10,
+        "lineColor": 0,
+        "fillColor": 65280
+      }
+    ],
+    "pump": [
+      {
+        "name": "pump0",
+        "x": 1140,
+        "y": 390,
+        "width": 41,
+        "height": 49,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "pump1",
+        "x": 1140,
+        "y": 480,
+        "width": 41,
+        "height": 49,
+        "lineColor": 0,
+        "fillColor": 65344
+      }
+    ],
+    "line": [
+      {
+        "name": "line0",
+        "x": 1050,
+        "y": 360,
+        "width": 93,
+        "height": 0,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line1",
+        "x": 1050,
+        "y": 360,
+        "width": 0,
+        "height": 90,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line2",
+        "x": 1050,
+        "y": 450,
+        "width": 93,
+        "height": 0,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line3",
+        "x": 870,
+        "y": 420,
+        "width": 183,
+        "height": 0,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line4",
+        "x": 870,
+        "y": 240,
+        "width": 0,
+        "height": 180,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line5",
+        "x": 810,
+        "y": 240,
+        "width": 63,
+        "height": 0,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line6",
+        "x": 870,
+        "y": 420,
+        "width": 0,
+        "height": 390,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line7",
+        "x": 870,
+        "y": 810,
+        "width": 903,
+        "height": 0,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line8",
+        "x": 1140,
+        "y": 390,
+        "width": 63,
+        "height": 0,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line9",
+        "x": 1200,
+        "y": 390,
+        "width": 0,
+        "height": 90,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line10",
+        "x": 1140,
+        "y": 480,
+        "width": 63,
+        "height": 0,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line11",
+        "x": 1200,
+        "y": 450,
+        "width": 303,
+        "height": 0,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line12",
+        "x": 1500,
+        "y": 390,
+        "width": 0,
+        "height": 60,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line13",
+        "x": 750,
+        "y": 80,
+        "width": 0,
+        "height": 100,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line14",
+        "x": 750,
+        "y": 80,
+        "width": 753,
+        "height": 0,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line15",
+        "x": 1500,
+        "y": 80,
+        "width": 0,
+        "height": 50,
+        "lineColor": 16711808,
+        "fillColor": 65344,
+        "lineWidth": 3
+      },
+      {
+        "name": "line16",
+        "x": 390,
+        "y": 390,
+        "width": 0,
+        "height": 120,
+        "lineColor": 32960,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line17",
+        "x": 390,
+        "y": 390,
+        "width": 303,
+        "height": 0,
+        "lineColor": 32960,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line18",
+        "x": 750,
+        "y": 780,
+        "width": 0,
+        "height": 90,
+        "lineColor": 32960,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line19",
+        "x": 300,
+        "y": 870,
+        "width": 453,
+        "height": 0,
+        "lineColor": 32960,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line20",
+        "x": 300,
+        "y": 750,
+        "width": 0,
+        "height": 120,
+        "lineColor": 32960,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line21",
+        "x": 420,
+        "y": 750,
+        "width": 0,
+        "height": 60,
+        "lineColor": 32960,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line22",
+        "x": 420,
+        "y": 810,
+        "width": 213,
+        "height": 0,
+        "lineColor": 32960,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line23",
+        "x": 630,
+        "y": 420,
+        "width": 0,
+        "height": 390,
+        "lineColor": 32960,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line24",
+        "x": 630,
+        "y": 300,
+        "width": 0,
+        "height": 60,
+        "lineColor": 32960,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line25",
+        "x": 540,
+        "y": 300,
+        "width": 93,
+        "height": 0,
+        "lineColor": 32960,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line26",
+        "x": 480,
+        "y": 240,
+        "width": 60,
+        "height": 60,
+        "lineColor": 32960,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line27",
+        "x": 480,
+        "y": 120,
+        "width": 0,
+        "height": 120,
+        "lineColor": 32960,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line28",
+        "x": 30,
+        "y": 120,
+        "width": 453,
+        "height": 0,
+        "lineColor": 32960,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line29",
+        "x": 30,
+        "y": 270,
+        "width": 663,
+        "height": 0,
+        "lineColor": 16711808,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line30",
+        "x": 30,
+        "y": 450,
+        "width": 63,
+        "height": 0,
+        "lineColor": 8421376,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line31",
+        "x": 90,
+        "y": 450,
+        "width": 0,
+        "height": 420,
+        "lineColor": 8421376,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line32",
+        "x": 30,
+        "y": 870,
+        "width": 63,
+        "height": 0,
+        "lineColor": 8421376,
+        "fillColor": 4671335,
+        "lineWidth": 3
+      },
+      {
+        "name": "line33",
+        "x": 1600,
+        "y": 300,
+        "width": 0,
+        "height": 40,
+        "lineColor": 12632256,
+        "fillColor": 33023,
+        "lineWidth": 1
+      },
+      {
+        "name": "line34",
+        "x": 1600,
+        "y": 340,
+        "width": 81,
+        "height": 0,
+        "lineColor": 12632256,
+        "fillColor": 33023,
+        "lineWidth": 1
+      },
+      {
+        "name": "line35",
+        "x": 1680,
+        "y": 300,
+        "width": 0,
+        "height": 40,
+        "lineColor": 12632256,
+        "fillColor": 33023,
+        "lineWidth": 1
+      },
+      {
+        "name": "line36",
+        "x": 1600,
+        "y": 300,
+        "width": 81,
+        "height": 0,
+        "lineColor": 12632256,
+        "fillColor": 33023,
+        "lineWidth": 1
+      },
+      {
+        "name": "line37",
+        "x": 1560,
+        "y": 320,
+        "width": 41,
+        "height": 0,
+        "lineColor": 12632256,
+        "fillColor": 33023,
+        "lineWidth": 1
+      }
+    ],
+    "polygon": [
+      {
+        "name": "polygon0",
+        "x": 30,
+        "y": 510,
+        "width": 0,
+        "height": 240,
+        "lineColor": 0,
+        "fillColor": 4671335,
+        "points": [
+          { "x": 480, "y": 510 },
+          { "x": 240, "y": 510 },
+          { "x": 120, "y": 600 },
+          { "x": 30, "y": 600 },
+          { "x": 30, "y": 750 },
+          { "x": 480, "y": 750 }
+        ]
+      },
+      {
+        "name": "polygon2",
+        "x": 1060,
+        "y": 100,
+        "width": 0,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65280,
+        "points": [
+          { "x": 1060, "y": 100 },
+          { "x": 1120, "y": 120 },
+          { "x": 1120, "y": 100 },
+          { "x": 1060, "y": 120 }
+        ]
+      }
+    ],
+    "rectangle": [
+      {
+        "name": "rectangle0",
+        "x": 690,
+        "y": 210,
+        "width": 120,
+        "height": 540,
+        "lineColor": 0,
+        "fillColor": 3947607
+      },
+      {
+        "name": "rectangle1",
+        "x": 1440,
+        "y": 150,
+        "width": 120,
+        "height": 210,
+        "lineColor": 0,
+        "fillColor": 3947607
+      },
+      {
+        "name": "rectangle2",
+        "x": 1050,
+        "y": 60,
+        "width": 90,
+        "height": 30,
+        "lineColor": 0,
+        "fillColor": 3947607
+      },
+      {
+        "name": "rectangle3",
+        "x": 420,
+        "y": 540,
+        "width": 30,
+        "height": 180,
+        "lineColor": 0,
+        "fillColor": 1710630
+      },
+      {
+        "name": "rectangle4",
+        "x": 750,
+        "y": 510,
+        "width": 30,
+        "height": 210,
+        "lineColor": 0,
+        "fillColor": 1710630
+      },
+      {
+        "name": "rectangle5",
+        "x": 1500,
+        "y": 180,
+        "width": 30,
+        "height": 150,
+        "lineColor": 0,
+        "fillColor": 1710630
+      },
+      {
+        "name": "rectangle6",
+        "x": 1500,
+        "y": 300,
+        "width": 30,
+        "height": 30,
+        "lineColor": 0,
+        "fillColor": 16711808
+      },
+      {
+        "name": "rectangle7",
+        "x": 750,
+        "y": 630,
+        "width": 30,
+        "height": 90,
+        "lineColor": 0,
+        "fillColor": 33023
+      },
+      {
+        "name": "rectangle8",
+        "x": 420,
+        "y": 630,
+        "width": 30,
+        "height": 90,
+        "lineColor": 0,
+        "fillColor": 33023
+      }
+    ],
+    "valve": [
+      {
+        "name": "valve0",
+        "x": 510,
+        "y": 390,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve1",
+        "x": 630,
+        "y": 270,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve2",
+        "x": 1410,
+        "y": 450,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve3",
+        "x": 870,
+        "y": 330,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve4",
+        "x": 1410,
+        "y": 810,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve5",
+        "x": 820,
+        "y": 80,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve6",
+        "x": 540,
+        "y": 810,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve7",
+        "x": 540,
+        "y": 870,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve8",
+        "x": 90,
+        "y": 510,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve9",
+        "x": 90,
+        "y": 810,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve10",
+        "x": 120,
+        "y": 120,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      },
+      {
+        "name": "valve11",
+        "x": 120,
+        "y": 270,
+        "width": 41,
+        "height": 20,
+        "lineColor": 0,
+        "fillColor": 65344
+      }
+    ]
+  }
+}

@@ -23,7 +23,7 @@ let app = new PIXI.Application({
   antialias: true, // default: false
   transparent: false, // default: false
   resolution: 1, // default: 1
-  backgroundColor: 0x1a1a26,
+  backgroundColor: 0xfefefe, // 0x1a1a26
   forceCanvas: true
 });
 
@@ -53,383 +53,6 @@ document
 
 drawGrid();
 
-class Shape {
-  constructor(client) {
-    // Setup initial properties
-    this.x = client.x;
-    this.y = client.y;
-    this.height = 0;
-    this.width = 0;
-    this.centred = false;
-    this.lineColor = 0x000000;
-    this.fillColor = assets.drawing.fillColor;
-    this.drawing = true;
-    this.graphic = new PIXI.Graphics();
-    this.graphic.alpha = 0.5;
-    this.sprite = new PIXI.Sprite();
-    this.id = null;
-
-    // Draw guide lines if snap to grid enabled
-    if (assets.snapToGrid) addTempLines(client.x, client.y);
-
-    // Add Graphic to the main stage so it is on top of everything else
-    app.stage.addChild(this.graphic);
-
-    // Kick off the event listerner for dragging the size and set dragging flag
-    assets.drawing.dragging = true;
-    document.querySelector("#app").addEventListener("mousemove", mouseMove);
-    this.draw(); // THIS MUST BE IMPLEMENTED PER EACH DERIVED CLASS!
-  }
-  update(client) {
-    // Update props
-    this.width = client.x - this.x;
-    this.height = client.y - this.y;
-
-    if (assets.drawing.dragging) this.draw();
-    else this.finishDrawing();
-  }
-  addToStage() {
-    switch (this.type) {
-      case "line":
-        procLines.addChild(this.sprite);
-        break;
-      default:
-        procGrafx.addChild(this.sprite);
-        break;
-    }
-  }
-  finishDrawing() {
-    // Need to clear the previous graphic
-    this.graphic.destroy();
-    this.graphic = new PIXI.Graphics();
-
-    // Normalise the coordinates in case we drew the symbol backwards
-    this.normaliseCoordinates();
-
-    // Redraw and convert to sprite texture
-    this.draw();
-    this.convertToSprite();
-    this.makeInteractive();
-    this.addToStage();
-    removeTempLines();
-
-    // Add to undo stack
-    assets.history.push(this);
-
-    // Add to array, creates it if it doesn't already exist. Create ID so we know array position
-    if (assets.symbols[this.type]) {
-      this.id = assets.symbols[this.type].length;
-      assets.symbols[this.type].push(this);
-    } else {
-      this.id = 0;
-      assets.symbols[this.type] = [this];
-    }
-
-    // Reset draw flags
-    assets.drawing.currentDraw = null;
-    assets.drawing.startDraw = true;
-  }
-  convertToSprite() {
-    // Convert to Texture
-    let texture = canvasRenderer.generateTexture(this.graphic);
-    this.sprite = new PIXI.Sprite(texture);
-    this.sprite.smoothed = true;
-
-    // Add to stage at correct position
-    if (this.type == "line") procLines.addChild(this.sprite);
-    else procGrafx.addChild(this.sprite);
-
-    this.sprite.position.set(this.x, this.y);
-
-    // Add anchor point if centre aligned (eg. Ellipses)
-    if (this.centred) {
-      this.sprite.anchor.x = 0.5;
-      this.sprite.anchor.y = 0.5;
-      this.sprite.x += 1; // Not sure why this needed
-    }
-
-    // Destroy graphic object
-    this.graphic.destroy();
-    delete this.graphics;
-  }
-  normaliseCoordinates() {
-    if (!this.centred) {
-      if (this.width < 0) {
-        this.width = Math.abs(this.width);
-        this.x -= this.width;
-      }
-      if (this.height < 0) {
-        this.height = Math.abs(this.width);
-        this.y -= this.height;
-      }
-    } else {
-      this.width = Math.abs(this.width);
-      this.height = Math.abs(this.height);
-    }
-  }
-  makeInteractive() {
-    this.sprite.interactive = false;
-    this.sprite.buttonMode = true;
-    this.sprite.on("mousedown", () => symbolAction(this.sprite));
-  }
-  destroy() {
-    // Destroy the sprite object
-    this.sprite.destroy();
-    // And remove from array
-    assets.symbols[this.type].splice(this.id, 1);
-    // And clean up array is last item
-    if (assets.symbols[this.type].length == 0) delete assets.symbols[this.type];
-  }
-}
-class Rectangle extends Shape {
-  constructor(client) {
-    super(client);
-    this.type = "rectangle";
-  }
-  draw() {
-    this.graphic
-      .clear()
-      .lineStyle(1, this.lineColor, 1)
-      .beginFill(this.fillColor)
-      .drawRect(this.x, this.y, this.width, this.height)
-      .endFill();
-  }
-}
-class Line extends Shape {
-  constructor(client) {
-    super(client);
-    this.type = "line";
-    this.lineWidth = assets.drawing.lineWidth;
-    this.lineColor = assets.drawing.lineColor;
-  }
-  draw() {
-    // Increase the width by the line unit so there are no gaps
-    // unless the line is diaganol
-    let lineIsDiaganol = this.height > 0 && this.width > 0;
-    if (!lineIsDiaganol && this.height == 0) this.width += this.lineWidth;
-
-    this.graphic
-      .clear()
-      .lineStyle(this.lineWidth, this.lineColor, 1)
-      .moveTo(this.x, this.y)
-      .lineTo(this.x + this.width, this.y + this.height);
-  }
-}
-class Ellipse extends Shape {
-  constructor(client) {
-    super(client);
-    this.type = "ellipse";
-    this.centred = true;
-  }
-  draw() {
-    this.graphic
-      .clear()
-      .lineStyle(1, this.lineColor, 1)
-      .beginFill(this.fillColor)
-      .drawEllipse(this.x, this.y, this.width, this.height)
-      .endFill();
-  }
-}
-// Drawing Functions
-function drawRectangle(client) {
-  if (!assets.drawing.currentDraw) {
-    assets.drawing.currentDraw = new Rectangle(client);
-  } else {
-    assets.drawing.currentDraw.update(client);
-  }
-}
-function drawLine(client) {
-  if (!assets.drawing.currentDraw) {
-    assets.drawing.currentDraw = new Line(client);
-  } else {
-    assets.drawing.currentDraw.update(client);
-  }
-}
-function drawEllipse(client) {
-  if (!assets.drawing.currentDraw) {
-    assets.drawing.currentDraw = new Ellipse(client);
-  } else {
-    assets.drawing.currentDraw.update(client);
-  }
-}
-function drawVessel(client) {
-  let x = client.x;
-  let y = client.y;
-
-  if (assets.drawing.startDraw) {
-    // create two temp guide vessels which sit above the grid layer
-    // they will be disposed of once we finish our vessel
-    if (assets.snapToGrid) addTempLines(x, y);
-    assets.drawing.currentDraw = { x: x, y: y };
-    assets.drawing.startDraw = false;
-  } else {
-    let start = {
-      x: assets.drawing.currentDraw.x,
-      y: assets.drawing.currentDraw.y
-    };
-
-    // Sort out the coordinates if we drew it backwards
-    let temp = { x: start.x, y: start.y };
-    if (start.x > x) (start.x = x), (x = temp.x);
-    if (start.y > y) (start.y = y), (y = temp.y);
-
-    // Vessel dimensions
-    let vesselDimensions = {
-      width: x - start.x,
-      height: y - start.y,
-      rectangle: {
-        x: start.x,
-        y: start.y + start.y * 0.2,
-        width: x - start.x,
-        height: (y - start.y) * 0.8
-      },
-      arcTop: { start: { x: 1, y: 0 }, end: { x: 0, y: 0 } },
-      arcBtm: { start: { x: 0, y: 0 }, end: { x: 0, y: 0 } }
-    };
-
-    let r = vesselDimensions.rectangle;
-    console.log(r);
-
-    let gfx = new PIXI.Graphics()
-      // Rectangle
-      .lineStyle(1, 0x000000, 1)
-      .beginFill(assets.drawing.fillColor)
-      .drawRect(r.x, r.y, r.width, r.height)
-      .endFill();
-    // Arc Top
-    // Arc Bottom
-
-    // Convert to Texture
-    let txtr = app.renderer.generateTexture(gfx);
-    let vessel = new PIXI.Sprite(txtr);
-    procGrafx.addChild(vessel);
-
-    // Fix minor glitch when drawing shapes backwards
-    let drawX = start.x < x ? start.x : x;
-    let drawY = start.y < y ? start.y : y;
-    vessel.position.set(drawX, drawY);
-
-    // Add to array, creates it if it doesn't already exist
-    if (assets.symbols.vessels) assets.symbols.vessels.push(vessel);
-    else assets.symbols.vessels = [vessel];
-
-    // Add to history
-    assets.history.push(vessel);
-    assets.drawing.startDraw = true;
-    assets.drawing.currentDraw = {};
-
-    // Silly animation
-    gsap.from(vessel, { alpha: 0, duration: 0.1 });
-
-    // Clean up temp lines
-    gsap.to(tempLines, {
-      alpha: 0,
-      duration: 0.1,
-      ease: "none",
-      onComplete: () =>
-        tempLines.destroy({
-          children: true,
-          texture: true,
-          baseTexture: true
-        })
-    });
-
-    // Clean up Graphic object
-    gfx.destroy();
-  }
-}
-function drawValve(client) {
-  let x = client.x;
-  let y = client.y;
-  // let units = assets.gridLines;
-  let units = 12;
-
-  // prettier-ignore
-  let path = [0 * units, 0 * units,
-              2 * units, 1 * units,
-              4 * units, 0 * units,
-              4 * units, 2 * units,
-              2 * units, 1 * units,
-              0 * units, 2 * units];
-
-  let gfx = new PIXI.Graphics()
-    .lineStyle(1, 0x000000, 1)
-    .beginFill(assets.drawing.fillColor)
-    .drawPolygon(path)
-    .endFill();
-
-  // Now convert to Sprite and add to stage
-  let v = canvasRenderer.generateTexture(gfx);
-  let vlv = new PIXI.Sprite(v);
-  vlv.x = x;
-  vlv.y = y;
-  vlv.anchor.x = 0.5;
-  vlv.anchor.y = 0.5;
-  vlv.interactive = false;
-  vlv.buttonMode = true;
-  vlv.on("mousedown", () => symbolAction(vlv));
-
-  procValves.addChild(vlv);
-
-  // Add to array, creates it if it doesn't already exist
-  if (assets.symbols.valves) assets.symbols.valves.push(vlv);
-  else assets.symbols.valves = [vlv];
-
-  // Add to history
-  assets.history.push(vlv);
-
-  // clean up graphic object
-  gfx.destroy();
-
-  // Animation
-  gsap.from(vlv, { alpha: 0, duration: 0.1, ease: "none" });
-}
-function drawPump(client) {
-  let x = client.x;
-  let y = client.y;
-  // let units = assets.gridLines;
-  let units = 10;
-
-  // prettier-ignore
-  let path = [0 * units, 1 * units,
-              2 * units, 4 * units,
-              -2 * units, 4 * units];
-
-  let gfx = new PIXI.Graphics()
-    .lineStyle(1, 0x000000, 1)
-    .beginFill(assets.drawing.fillColor)
-    .drawPolygon(path)
-    .endFill()
-    .beginFill(assets.drawing.fillColor)
-    .drawEllipse(0, 12, 20, 20)
-    .endFill();
-
-  // Now convert to Sprite and add to stage
-  let p = app.renderer.generateTexture(gfx);
-  let pmp = new PIXI.Sprite(p);
-  pmp.x = x;
-  pmp.y = y;
-
-  // Interactive options
-  pmp.interactive = false;
-  pmp.buttonMode = true;
-  pmp.on("mousedown", () => symbolAction(pmp));
-
-  procGrafx.addChild(pmp);
-
-  // Add to array, creates it if it doesn't already exist
-  if (assets.symbols.pumps) assets.symbols.pumps.push(pmp);
-  else assets.symbols.pumps = [pmp];
-
-  // Add to history
-  assets.history.push(pmp);
-
-  // clean up graphic object
-  gfx.destroy();
-
-  // Animation
-  gsap.from(pmp, { alpha: 0, duration: 0.1, ease: "none" });
-}
 function drawText(client) {
   assets.drawing.text = {
     font: "Arial",
@@ -549,7 +172,7 @@ function interactiveMode(option) {
   Object.keys(assets.symbols).forEach(e => {
     let symbols = assets.symbols[e];
     for (let i = 0; i < symbols.length; i++) {
-      let symbol = null;
+      let symbol = symbols[i];
       // To fix this once all symbols are corrected
       if (symbol.sprite) {
         symbol = symbols[i].sprite;
@@ -572,10 +195,6 @@ function moveSymbol(symbol) {
 function moveSymbolTo(client) {
   if (assets.drawing.moveSymbol) {
     let symbol = assets.drawing.moveSymbol;
-    //symbol.x = client.x;
-    //symbol.y = client.y;
-    //symbol.alpha = 1;
-    // Let's animate it for fun...
     gsap.to(symbol, {
       x: client.x,
       y: client.y,
@@ -590,7 +209,7 @@ function moveSymbolTo(client) {
 }
 function rotateSymbol(symbol) {
   // Add more here once we have the document object made
-  symbol.rotation += 1.5708;
+  symbol.rotation += 4.712391;
 }
 function mouseDown(e) {
   // Fix coordinates now we have new layers on page ruining pageX
@@ -621,6 +240,9 @@ function mouseDown(e) {
       break;
     case "drawValve":
       drawValve(client);
+      break;
+    case "drawPolygon":
+      drawPolygon(client);
       break;
     case "drawRectangle":
       drawRectangle(client);
@@ -660,6 +282,9 @@ function mouseMove(e) {
       break;
     case "drawValve":
       drawValve(client);
+      break;
+    case "drawPolygon":
+      drawPolygon(client);
       break;
     case "drawRectangle":
       drawRectangle(client);
