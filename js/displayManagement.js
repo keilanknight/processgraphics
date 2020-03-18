@@ -49,7 +49,7 @@ function saveDisplay() {
       }
     }
   }
-
+  console.log(JSON.stringify(display));
 }
 
 function loadDisplay(filename) {
